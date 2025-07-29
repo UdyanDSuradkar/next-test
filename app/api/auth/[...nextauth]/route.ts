@@ -4,6 +4,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 
+// ✅ Create config directly inside NextAuth
 const handler = NextAuth({
   providers: [
     GoogleProvider({
@@ -32,5 +33,5 @@ const handler = NextAuth({
   },
 });
 
-// ✅ Only export GET and POST
+// ✅ ONLY export these two — nothing else!
 export { handler as GET, handler as POST };
