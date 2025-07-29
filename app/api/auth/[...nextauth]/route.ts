@@ -5,27 +5,37 @@ import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import type { NextAuthOptions } from "next-auth";
 
-// ✅ Runtime check to satisfy TypeScript
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error("Missing NEXTAUTH_SECRET in environment variables");
+// Ensure all required env vars are present
+const {
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET,
+  NEXTAUTH_SECRET,
+} = process.env;
+
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !NEXTAUTH_SECRET) {
+  throw new Error(
+    "Missing one or more required environment variables for auth"
+  );
 }
 
-export const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
     }),
     GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+      clientId: GITHUB_CLIENT_ID!,
+      clientSecret: GITHUB_CLIENT_SECRET!,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET, // ✅ now safe and typed
+  secret: NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, token }) {
       if (session.user) {
-        // @ts-expect-error: id is manually added
+        // @ts-expect-error – we are manually attaching `id`
         session.user.id = token.sub;
       }
       return session;
@@ -37,7 +47,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
   },
-};
+});
 
-const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
