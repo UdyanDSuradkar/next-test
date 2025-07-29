@@ -5,15 +5,16 @@ import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEnvelope,
+  faUser,
   faLock,
-  faArrowRight,
   faEye,
   faEyeSlash,
+  faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
-import { faGithub, faGoogle } from "@fortawesome/free-brands-svg-icons";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,16 +23,19 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const res = await fetch("/api/auth/login", {
+
+    const res = await fetch("/api/auth/register", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ name, email, password }),
       headers: { "Content-Type": "application/json" },
     });
+
     setLoading(false);
     if (res.ok) {
-      router.push("/dashboard");
+      alert("Registration successful! Please login.");
+      router.push("/");
     } else {
-      alert("Login failed");
+      alert("Registration failed");
     }
   };
 
@@ -39,11 +43,26 @@ export default function LoginPage() {
     <div className="container">
       <div className="login-card">
         <div className="login-header">
-          <h1>Welcome Back</h1>
-          <p>Please sign in to your account</p>
+          <h1>Create Account</h1>
+          <p>Please fill in your details</p>
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <div className="input-wrapper">
+              <FontAwesomeIcon icon={faUser} className="input-icon" />
+              <input
+                type="text"
+                id="name"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <div className="input-wrapper">
@@ -67,10 +86,10 @@ export default function LoginPage() {
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
-                placeholder="Enter your password"
+                placeholder="Create a password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
               />
               <button
@@ -83,55 +102,21 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="form-options">
-            <label className="checkbox-wrapper">
-              <input type="checkbox" />
-              <span className="checkmark"></span>
-              Remember me
-            </label>
-            <a href="#" className="forgot-password">
-              Forgot password?
-            </a>
-          </div>
-
           <button
             type="submit"
-            className={`login-btn primary-btn ${loading ? "loading" : ""}`}
+            className={`primary-btn ${loading ? "loading" : ""}`}
             disabled={loading}
           >
-            <span>Sign In</span>
+            <span>Sign Up</span>
             <FontAwesomeIcon icon={faArrowRight} />
           </button>
         </form>
 
-        <div className="divider">
-          <span>or continue with</span>
-        </div>
-
-        <div className="social-login">
-          <button
-            type="button"
-            className="social-btn google-btn"
-            onClick={() => alert("Google login")}
-          >
-            <FontAwesomeIcon icon={faGoogle} />
-            <span>Google</span>
-          </button>
-          <button
-            type="button"
-            className="social-btn github-btn"
-            onClick={() => alert("GitHub login")}
-          >
-            <FontAwesomeIcon icon={faGithub} />
-            <span>GitHub</span>
-          </button>
-        </div>
-
         <div className="signup-prompt">
           <p>
-            Not a user?{" "}
-            <a href="/register" className="signup-link">
-              Create account
+            Already have an account?{" "}
+            <a href="/" className="signup-link">
+              Sign in
             </a>
           </p>
         </div>
