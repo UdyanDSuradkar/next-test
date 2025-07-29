@@ -3,9 +3,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
-import { NextAuthOptions } from "next-auth";
 
-export const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -19,8 +18,8 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
+      if (session?.user) {
+        (session.user as any).id = token.sub;
       }
       return session;
     },
@@ -31,7 +30,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
   },
-};
+});
 
-const handler = NextAuth(authOptions);
+// ✅ Only export GET and POST
 export { handler as GET, handler as POST };
