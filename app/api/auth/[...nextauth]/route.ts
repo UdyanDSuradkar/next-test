@@ -3,9 +3,14 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
+import type { NextAuthOptions } from "next-auth";
 
-// ✅ Create config directly inside NextAuth
-const handler = NextAuth({
+// ✅ Runtime check to satisfy TypeScript
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error("Missing NEXTAUTH_SECRET in environment variables");
+}
+
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -16,11 +21,12 @@ const handler = NextAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET, // ✅ now safe and typed
   callbacks: {
     async session({ session, token }) {
-      if (session?.user) {
-        (session.user as any).id = token.sub;
+      if (session.user) {
+        // @ts-expect-error: id is manually added
+        session.user.id = token.sub;
       }
       return session;
     },
@@ -31,7 +37,7 @@ const handler = NextAuth({
       return token;
     },
   },
-});
+};
 
-// ✅ ONLY export these two — nothing else!
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
