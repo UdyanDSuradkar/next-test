@@ -17,3 +17,7 @@ export async function verifyPassword(password: string, hash: string) {
 export function generateJWT(user: { id: string; email: string }) {
   return jwt.sign(user, JWT_SECRET, { expiresIn: "7d" });
 }
+
+export async function comparePassword(password: string, hash: string) {
+  return await bcrypt.compare(password, hash);
+}
