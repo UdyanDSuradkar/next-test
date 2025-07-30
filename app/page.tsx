@@ -123,14 +123,6 @@ export default function LoginPage() {
         <div className="social-login">
           <button
             type="button"
-            className="social-btn google-btn"
-            onClick={() => signIn("google")}
-          >
-            <FontAwesomeIcon icon={faGoogle} />
-            <span>Google</span>
-          </button>
-          <button
-            type="button"
             className="social-btn github-btn"
             onClick={() => signIn("github")}
           >

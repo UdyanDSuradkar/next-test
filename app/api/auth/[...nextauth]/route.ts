@@ -3,39 +3,23 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
-import type { NextAuthOptions } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 
-// Ensure all required env vars are present
-const {
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  GITHUB_CLIENT_ID,
-  GITHUB_CLIENT_SECRET,
-  NEXTAUTH_SECRET,
-} = process.env;
-
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !NEXTAUTH_SECRET) {
-  throw new Error(
-    "Missing one or more required environment variables for auth"
-  );
-}
-
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     GitHubProvider({
-      clientId: GITHUB_CLIENT_ID!,
-      clientSecret: GITHUB_CLIENT_SECRET!,
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
   ],
-  secret: NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async session({ session, token }) {
-      if (session.user) {
-        // @ts-expect-error – we are manually attaching `id`
+      if (session.user && token.sub) {
         session.user.id = token.sub;
       }
       return session;
@@ -47,6 +31,7 @@ const handler = NextAuth({
       return token;
     },
   },
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
